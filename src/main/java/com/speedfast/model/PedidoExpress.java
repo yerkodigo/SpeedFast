@@ -1,8 +1,17 @@
 package com.speedfast.model;
 
 public class PedidoExpress extends Pedido {
-    public PedidoExpress(String direccionEntrega, String tipoPedido) {
-        super(direccionEntrega, tipoPedido);
+    @Override
+    public void calcularTiempoEntrega() {
+        int tiempo = 10;
+        if (this.getDistanciaKm() > 5) {
+            tiempo += 5;
+        }
+        System.out.println("Tiempo estimado de entrega: " + tiempo + " minutos");
+    }
+
+    public PedidoExpress(String direccionEntrega, String tipoPedido, Integer distanciaKm) {
+        super(direccionEntrega, tipoPedido,  distanciaKm);
     }
 
     @Override

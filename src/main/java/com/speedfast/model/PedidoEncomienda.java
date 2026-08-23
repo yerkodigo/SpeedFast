@@ -3,9 +3,15 @@ package com.speedfast.model;
 public class PedidoEncomienda extends Pedido {
     private float peso;
 
-    public PedidoEncomienda(String direccionEntrega, String tipoPedido, float peso) {
-        super(direccionEntrega, tipoPedido);
+    public PedidoEncomienda(String direccionEntrega, String tipoPedido, float peso, Integer distanciaKm) {
+        super(direccionEntrega, tipoPedido, distanciaKm);
         this.peso = peso;
+    }
+
+    @Override
+    public void calcularTiempoEntrega() {
+        int tiempo = 20 + (int) (1.5 * this.getDistanciaKm());
+        System.out.println("Tiempo estimado de entrega: " + tiempo + " minutos");
     }
 
     @Override

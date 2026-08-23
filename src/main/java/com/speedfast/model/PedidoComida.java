@@ -3,9 +3,15 @@ package com.speedfast.model;
 public class PedidoComida extends Pedido {
     private boolean mochilaTermica;
 
-    public PedidoComida(String direccionEntrega, String tipoPedido, boolean mochilaTermica) {
-        super(direccionEntrega, tipoPedido);
+    public PedidoComida(String direccionEntrega, String tipoPedido, boolean mochilaTermica, Integer distanciaKm) {
+        super(direccionEntrega, tipoPedido, distanciaKm);
         this.mochilaTermica = mochilaTermica;
+    }
+
+    @Override
+    public void calcularTiempoEntrega() {
+        int tiempo = 15 + (2 * this.getDistanciaKm());
+        System.out.println("Tiempo estimado de entrega: " + tiempo + " minutos");
     }
 
     @Override
