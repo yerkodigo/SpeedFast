@@ -19,7 +19,9 @@ SpeedFast es una empresa de reparto a domicilio que ofrece tres tipos de servici
 - **Encomiendas** (documentos o paquetes): requiere validación de peso y embalaje.
 - **Compras Express** (supermercado o farmacia): debe asignarse al repartidor más cercano con disponibilidad inmediata.
 
-El sistema implementado en Java modela esta lógica mediante un método `asignarRepartidor()` que se comporta de manera diferenciada según el tipo de pedido. El proyecto aplica principios de Programación Orientada a Objetos como encapsulamiento, **herencia** y **sobrescritura de métodos (overriding)**, además de **sobrecarga de métodos (overloading)**, delegando la lógica específica de cada tipo de pedido a sus respectivas clases hijas.
+El sistema implementado en Java modela esta lógica mediante un método `asignarRepartidor()` que se comporta de manera diferenciada según el tipo de pedido. El proyecto aplica principios de Programación Orientada a Objetos como encapsulamiento, **herencia**, **abstracción** y **sobrescritura de métodos (overriding)**, además de **sobrecarga de métodos (overloading)**, delegando la lógica específica de cada tipo de pedido a sus respectivas clases hijas.
+
+`Pedido` es una **clase abstracta**: no puede instanciarse directamente y define `calcularTiempoEntrega()` como método abstracto, obligando a cada subclase a implementar su propia fórmula de tiempo estimado según el tipo de servicio.
 
 ---
 
@@ -28,23 +30,33 @@ El sistema implementado en Java modela esta lógica mediante un método `asignar
 ```plaintext
 src/main/java/com/speedfast/
 ├── model/
-│   ├── Pedido.java              # Clase base; id, direccionEntrega y tipoPedido; define asignarRepartidor() sobrecargado
-│   ├── PedidoComida.java        # Subclase; agrega mochilaTermica; sobreescribe asignarRepartidor() validando la mochila térmica
-│   ├── PedidoEncomienda.java    # Subclase; agrega peso; sobreescribe asignarRepartidor() validando el peso máximo
-│   └── PedidoExpress.java       # Subclase (Compra Express); sobreescribe asignarRepartidor() con asignación inmediata al repartidor más cercano
-└── Main.java                    # Punto de entrada; crea instancias de cada tipo de pedido y prueba la asignación de repartidores
+│   ├── Pedido.java              # Clase abstracta base; id, direccionEntrega, tipoPedido y distanciaKm; define asignarRepartidor() sobrecargado, mostrarResumen() y el método abstracto calcularTiempoEntrega()
+│   ├── PedidoComida.java        # Subclase; agrega mochilaTermica; implementa calcularTiempoEntrega() y sobreescribe asignarRepartidor() validando la mochila térmica
+│   ├── PedidoEncomienda.java    # Subclase; agrega peso; implementa calcularTiempoEntrega() y sobreescribe asignarRepartidor() validando el peso máximo
+│   └── PedidoExpress.java       # Subclase (Compra Express); implementa calcularTiempoEntrega() y sobreescribe asignarRepartidor() con asignación inmediata al repartidor más cercano
+└── Main.java                    # Punto de entrada; crea instancias de cada tipo de pedido y prueba mostrarResumen(), calcularTiempoEntrega() y la asignación de repartidores
 ```
 
 ### Jerarquía de herencia — Pedido
 
-`Pedido` es la clase base y contiene los atributos comunes a todo pedido (`idPedido`, `direccionEntrega`, `tipoPedido`). Las tres subclases extienden estos atributos con información específica de cada tipo de servicio y sobrescriben `asignarRepartidor()` (en sus dos versiones sobrecargadas) para aplicar la validación correspondiente antes de asignar al repartidor.
+`Pedido` es la clase base (abstracta) y contiene los atributos comunes a todo pedido (`idPedido`, `direccionEntrega`, `tipoPedido`, `distanciaKm`). Las tres subclases extienden estos atributos con información específica de cada tipo de servicio, implementan `calcularTiempoEntrega()` y sobrescriben `asignarRepartidor()` (en sus dos versiones sobrecargadas) para aplicar la validación correspondiente antes de asignar al repartidor.
 
 ```
-Pedido
+Pedido (abstracta)
  ├── PedidoComida       → mochilaTermica: boolean
  ├── PedidoEncomienda   → peso: float
  └── PedidoExpress      (sin atributos adicionales)
 ```
+
+### Abstracción — `calcularTiempoEntrega()`
+
+`Pedido` declara `calcularTiempoEntrega()` como método abstracto, sin implementación propia, forzando a cada subclase a definir su propia fórmula de tiempo estimado en función de `distanciaKm`:
+
+- **PedidoComida**: `15 + (2 * distanciaKm)` minutos.
+- **PedidoEncomienda**: `20 + (1.5 * distanciaKm)` minutos.
+- **PedidoExpress**: `10` minutos base, `+5` adicionales si `distanciaKm > 5`.
+
+Además, `Pedido` provee `mostrarResumen()` (dirección y distancia) como comportamiento común heredado sin necesidad de sobrescritura.
 
 ### Sobrecarga y sobrescritura de `asignarRepartidor()`
 
@@ -56,7 +68,7 @@ Pedido
 
 ### Punto de entrada
 
-`Main.java` crea una instancia de cada tipo de pedido (`PedidoComida`, `PedidoEncomienda`, `PedidoExpress`) y llama a ambas versiones de `asignarRepartidor()` sobre cada una, mostrando por consola el comportamiento polimórfico de cada subclase.
+`Main.java` crea una instancia de cada tipo de pedido (`PedidoComida`, `PedidoEncomienda`, `PedidoExpress`) y, para cada una, llama a `mostrarResumen()` y `calcularTiempoEntrega()`, mostrando por consola el comportamiento polimórfico de cada subclase.
 
 ---
 
@@ -83,4 +95,4 @@ mvn compile exec:java -Dexec.mainClass="com.speedfast.Main"
 
 ---
 
-© Duoc UC | Escuela de Informática y Telecomunicaciones | Desarrollo Orientado a Objetos 2 - Semana 01
+© Duoc UC | Escuela de Informática y Telecomunicaciones | Desarrollo Orientado a Objetos 2 - Semana 02
