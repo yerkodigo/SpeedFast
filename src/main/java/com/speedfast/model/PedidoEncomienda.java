@@ -9,9 +9,14 @@ public class PedidoEncomienda extends Pedido {
     }
 
     @Override
+    public String getNombreTipo() {
+        return "Encomienda";
+    }
+
+    @Override
     public void calcularTiempoEntrega() {
-        int tiempo = 20 + (int) (1.5 * this.getDistanciaKm());
-        System.out.println("Tiempo estimado de entrega: " + tiempo + " minutos");
+        int tiempo = 20 + Math.round(1.5f * this.getDistanciaKm());
+        System.out.println("Tiempo estimado: " + tiempo + " minutos");
     }
 
     @Override
@@ -24,7 +29,8 @@ public class PedidoEncomienda extends Pedido {
         System.out.println("Asignando repartidor...");
         if (peso < 60.0f) {
             System.out.println("Validando peso y embalaje... OK");
-            System.out.println("Pedido " + getIdPedido() + " asignado a " + nombreRepartidor);
+            registrarRepartidor(nombreRepartidor);
+            System.out.println("Repartidor asignado: " + nombreRepartidor);
         } else {
             System.out.println("Verificando peso... Peso no válido");
             System.out.println("Por favor ingrese un peso válido para asignar el pedido.");
