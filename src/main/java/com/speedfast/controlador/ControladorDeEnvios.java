@@ -4,12 +4,13 @@ import com.speedfast.interfaces.Rastreable;
 import com.speedfast.model.Pedido;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ControladorDeEnvios implements Rastreable {
-    private List<Pedido> historialEntregas = new ArrayList<>();
+    private final List<Pedido> historialEntregas = Collections.synchronizedList(new ArrayList<>());
 
-    public void despacharPedido(Pedido pedido) {
+    public synchronized void despacharPedido(Pedido pedido) {
         pedido.despachar();
         if ("Despachado".equals(pedido.getEstado())) {
             historialEntregas.add(pedido);
