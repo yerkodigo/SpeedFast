@@ -39,8 +39,10 @@ src/main/java/com/speedfast/
 │   ├── Cancelable.java          # Contrato con el método cancelar()
 │   └── Rastreable.java          # Contrato con el método verHistorial()
 ├── controlador/
-│   └── ControladorDeEnvios.java # Implementa Rastreable; orquesta despacharPedido()/cancelarPedido() y mantiene el historial de entregas (ArrayList<Pedido>)
-└── Main.java                    # Punto de entrada; simula asignación manual y automática, cálculo de tiempo, despacho, cancelación y visualización del historial
+│   └── ControladorDeEnvios.java # Implementa Rastreable; orquesta despacharPedido()/cancelarPedido() (método sincronizado) y mantiene el historial de entregas (lista thread-safe)
+├── concurrencia/
+│   └── Repartidor.java          # Implementa Runnable; nombre y lista de pedidos asignados; recorre y entrega sus pedidos de forma secuencial simulando tiempos con Thread.sleep()
+└── Main.java                    # Punto de entrada; instancia 3 repartidores y los ejecuta en paralelo con ExecutorService, esperando su finalización antes de mostrar el historial
 ```
 
 ### Jerarquía de herencia — Pedido
@@ -86,9 +88,9 @@ Se definen tres interfaces en el paquete `interfaces/`, cada una con un único m
 
 `ControladorDeEnvios` centraliza las operaciones funcionales sobre los pedidos:
 
-- `despacharPedido(Pedido)`: invoca `despachar()` sobre el pedido y, si su estado queda en `"Despachado"`, lo agrega al historial.
+- `despacharPedido(Pedido)`: invoca `despachar()` sobre el pedido y, si su estado queda en `"Despachado"`, lo agrega al historial. Método `synchronized` para evitar condiciones de carrera cuando varios repartidores despachan al mismo tiempo.
 - `cancelarPedido(Pedido)`: invoca `cancelar()` sobre el pedido.
-- `verHistorial()`: recorre un `ArrayList<Pedido>` interno e imprime cada entrega realizada junto al repartidor que la efectuó.
+- `verHistorial()`: recorre la lista interna (`Collections.synchronizedList`) e imprime cada entrega realizada junto al repartidor que la efectuó.
 
 ### Punto de entrada
 
@@ -119,4 +121,4 @@ mvn compile exec:java -Dexec.mainClass="com.speedfast.Main"
 
 ---
 
-© Duoc UC | Escuela de Informática y Telecomunicaciones | Desarrollo Orientado a Objetos 2 - Semana 03
+© Duoc UC | Escuela de Informática y Telecomunicaciones | Desarrollo Orientado a Objetos 2 - Semana 04
