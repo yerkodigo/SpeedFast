@@ -1,0 +1,24 @@
+package com.speedfast.concurrencia.sincronizacion;
+
+import java.util.LinkedList;
+import java.util.List;
+
+public class ZonaDeCarga {
+    private final List<Pedido> pedidosPendientes = new LinkedList<>();
+
+    public ZonaDeCarga() {
+        System.out.println("[Zona de carga inicializada]");
+    }
+
+    public synchronized void agregarPedido(Pedido pedido) {
+        pedidosPendientes.add(pedido);
+        System.out.println("Pedido #" + pedido.getId() + " agregado. Destino: " + pedido.getDireccionEntrega());
+    }
+
+    public synchronized Pedido retirarPedido() {
+        if (pedidosPendientes.isEmpty()) {
+            return null;
+        }
+        return pedidosPendientes.remove(0);
+    }
+}

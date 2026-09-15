@@ -1,39 +1,33 @@
 package com.speedfast;
 
-import com.speedfast.concurrencia.Repartidor;
-import com.speedfast.controlador.ControladorDeEnvios;
-import com.speedfast.model.PedidoComida;
-import com.speedfast.model.PedidoEncomienda;
-import com.speedfast.model.PedidoExpress;
+import com.speedfast.concurrencia.sincronizacion.Pedido;
+import com.speedfast.concurrencia.sincronizacion.Repartidor;
+import com.speedfast.concurrencia.sincronizacion.ZonaDeCarga;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
-        ControladorDeEnvios controlador = new ControladorDeEnvios();
+        ZonaDeCarga zonaDeCarga = new ZonaDeCarga();
+        System.out.println();
 
-        Repartidor camila = new Repartidor("Camila", List.of(
-                new PedidoComida("Las Acacias 123", "Pedido Plus", true, 10),
-                new PedidoEncomienda("Dorsal 123", "Pedido normal", 39.8f, 8)
-        ), controlador);
+        zonaDeCarga.agregarPedido(new Pedido(1, "Santiago Centro"));
+        zonaDeCarga.agregarPedido(new Pedido(2, "Providencia"));
+        zonaDeCarga.agregarPedido(new Pedido(3, "Ñuñoa"));
+        zonaDeCarga.agregarPedido(new Pedido(4, "Recoleta"));
+        zonaDeCarga.agregarPedido(new Pedido(5, "Las condes"));
+        System.out.println();
 
-        Repartidor luis = new Repartidor("Luis", List.of(
-                new PedidoExpress("Cauquenes 123", "Pedido programado", 5),
-                new PedidoComida("Vicuña Mackenna 456", "Pedido normal", true, 3)
-        ), controlador);
-
-        Repartidor daniela = new Repartidor("Daniela", List.of(
-                new PedidoEncomienda("Los Leones 111", "Pedido normal", 12.5f, 6),
-                new PedidoExpress("Providencia 321", "Pedido programado", 2)
-        ), controlador);
+        Repartidor juan = new Repartidor("Juan", zonaDeCarga);
+        Repartidor camila = new Repartidor("Camila", zonaDeCarga);
+        Repartidor pedro = new Repartidor("Pedro", zonaDeCarga);
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
+        executor.submit(juan);
         executor.submit(camila);
-        executor.submit(luis);
-        executor.submit(daniela);
+        executor.submit(pedro);
 
         executor.shutdown();
         try {
@@ -48,6 +42,7 @@ public class Main {
         }
 
         System.out.println();
-        controlador.verHistorial();
+        System.out.println("[Zona de carga vacía]");
+        System.out.println("Todos los pedidos han sido entregados correctamente.");
     }
 }
