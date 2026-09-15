@@ -13,15 +13,12 @@
 
 ## Descripción general del sistema
 
-SpeedFast es una empresa de reparto a domicilio que ofrece tres tipos de servicio, cada uno con criterios distintos para la asignación de repartidor:
+SpeedFast es una empresa de reparto a domicilio. El proyecto modela dos aspectos del negocio:
 
-- **Comida** (restaurantes): requiere repartidor con mochila térmica.
-- **Encomiendas** (documentos o paquetes): requiere validación de peso y embalaje.
-- **Compras Express** (supermercado o farmacia): debe asignarse al repartidor más cercano con disponibilidad inmediata.
+- La **asignación y despacho de pedidos** según su tipo de servicio (Comida, Encomienda, Compra Express), aplicando principios de Programación Orientada a Objetos: encapsulamiento, **herencia**, **abstracción**, **sobrescritura de métodos (overriding)**, **sobrecarga de métodos (overloading)** e **interfaces**.
+- La **coordinación concurrente de entregas**: múltiples repartidores, cada uno en su propio hilo, retiran pedidos de una **zona de carga compartida** y los despachan en paralelo, aplicando **sincronización** (`synchronized`) para evitar condiciones de carrera y que dos repartidores retiren el mismo pedido.
 
-El sistema implementado en Java modela esta lógica mediante un método `asignarRepartidor()` que se comporta de manera diferenciada según el tipo de pedido. El proyecto aplica principios de Programación Orientada a Objetos como encapsulamiento, **herencia**, **abstracción**, **sobrescritura de métodos (overriding)**, **sobrecarga de métodos (overloading)** e **interfaces**, delegando la lógica específica de cada tipo de pedido a sus respectivas clases hijas y desacoplando las operaciones de despacho, cancelación e historial mediante contratos independientes.
-
-`Pedido` es una **clase abstracta**: no puede instanciarse directamente y define `calcularTiempoEntrega()` como método abstracto, obligando a cada subclase a implementar su propia fórmula de tiempo estimado según el tipo de servicio. Además, `Pedido` implementa las interfaces `Despachable` y `Cancelable`, y la clase `ControladorDeEnvios` implementa `Rastreable`, gestionando el historial de entregas del sistema.
+El punto de entrada del proyecto, `Main.java`, ejecuta actualmente la simulación de coordinación concurrente (zona de carga + repartidores).
 
 ---
 
@@ -41,13 +38,18 @@ src/main/java/com/speedfast/
 ├── controlador/
 │   └── ControladorDeEnvios.java # Implementa Rastreable; orquesta despacharPedido()/cancelarPedido() (método sincronizado) y mantiene el historial de entregas (lista thread-safe)
 ├── concurrencia/
-│   └── Repartidor.java          # Implementa Runnable; nombre y lista de pedidos asignados; recorre y entrega sus pedidos de forma secuencial simulando tiempos con Thread.sleep()
-└── Main.java                    # Punto de entrada; instancia 3 repartidores y los ejecuta en paralelo con ExecutorService, esperando su finalización antes de mostrar el historial
+│   ├── Repartidor.java              # Implementa Runnable; nombre y lista de pedidos asignados; recorre y entrega sus pedidos de forma secuencial simulando tiempos con Thread.sleep()
+│   └── sincronizacion/
+│       ├── Pedido.java          # id (int), direccionEntrega (String), estado (EstadoPedido); getters/setters, setEstado(String) y setEstado(EstadoPedido), toString()
+│       ├── EstadoPedido.java    # Enum: PENDIENTE, EN_REPARTO, ENTREGADO
+│       ├── ZonaDeCarga.java     # Recurso compartido; lista interna de pedidos pendientes protegida con métodos synchronized: agregarPedido(Pedido) y retirarPedido()
+│       └── Repartidor.java      # Implementa Runnable; nombre y referencia a la ZonaDeCarga compartida; retira pedidos de a uno, simula la entrega con Thread.sleep() y actualiza su estado
+└── Main.java                        # Punto de entrada; instancia la ZonaDeCarga, agrega pedidos, crea repartidores y los ejecuta en paralelo con ExecutorService
 ```
 
 ### Jerarquía de herencia — Pedido
 
-`Pedido` es la clase base (abstracta) y contiene los atributos comunes a todo pedido (`idPedido` generado con `UUID`, `direccionEntrega`, `tipoPedido`, `distanciaKm`, `repartidorAsignado`, `estado`). Las tres subclases extienden estos atributos con información específica de cada tipo de servicio, implementan `getNombreTipo()` y `calcularTiempoEntrega()`, y sobrescriben `asignarRepartidor()` (en sus dos versiones sobrecargadas) para aplicar la validación correspondiente antes de asignar al repartidor.
+`Pedido` (paquete `model`) es la clase base abstracta y contiene los atributos comunes a todo pedido (`idPedido` generado con `UUID`, `direccionEntrega`, `tipoPedido`, `distanciaKm`, `repartidorAsignado`, `estado`). Las tres subclases extienden estos atributos con información específica de cada tipo de servicio, implementan `getNombreTipo()` y `calcularTiempoEntrega()`, y sobrescriben `asignarRepartidor()` (en sus dos versiones sobrecargadas) para aplicar la validación correspondiente antes de asignar al repartidor.
 
 ```
 Pedido (abstracta)
@@ -92,9 +94,18 @@ Se definen tres interfaces en el paquete `interfaces/`, cada una con un único m
 - `cancelarPedido(Pedido)`: invoca `cancelar()` sobre el pedido.
 - `verHistorial()`: recorre la lista interna (`Collections.synchronizedList`) e imprime cada entrega realizada junto al repartidor que la efectuó.
 
+### Coordinación concurrente — `concurrencia/sincronizacion`
+
+Este paquete modela la coordinación de entregas mediante una **zona de carga compartida**: los pedidos llegan a ella y múltiples repartidores, cada uno en su propio hilo, los retiran en paralelo.
+
+- **`Pedido`**: clase simple con `id`, `direccionEntrega` y `estado` (tipado con el enum `EstadoPedido`). El uso de `enum` en lugar de `String` evita errores de tipeo y mejora la legibilidad. Expone `setEstado(String nuevoEstado)` (convierte el texto al valor del enum mediante `EstadoPedido.valueOf(...)`) además de una sobrecarga `setEstado(EstadoPedido nuevoEstado)` para uso interno.
+- **`EstadoPedido`**: enum con los estados `PENDIENTE`, `EN_REPARTO` y `ENTREGADO`.
+- **`ZonaDeCarga`**: recurso compartido que almacena los pedidos pendientes en una `List<Pedido>` interna. Sus dos operaciones (`agregarPedido` y `retirarPedido`) son `synchronized`, por lo que solo un hilo a la vez puede modificar la lista, garantizando que `retirarPedido()` nunca entregue el mismo pedido a dos repartidores distintos.
+- **`Repartidor`**: implementa `Runnable`. En su `run()`, retira pedidos de la `ZonaDeCarga` de a uno mientras existan, cambia el estado a `EN_REPARTO`, simula el tiempo de entrega con `Thread.sleep()` y finalmente marca el pedido como `ENTREGADO`. Cuando la zona de carga queda vacía (`retirarPedido()` retorna `null`), el repartidor finaliza su ejecución de forma segura.
+
 ### Punto de entrada
 
-`Main.java` crea una instancia de cada tipo de pedido (`PedidoComida`, `PedidoEncomienda`, `PedidoExpress`) y simula el flujo completo del sistema: muestra el resumen (`mostrarResumen()`), asigna repartidor de forma **manual** (Comida y Encomienda, con nombre) y **automática** (Express, sin parámetros), calcula el tiempo estimado (`calcularTiempoEntrega()`), despacha los pedidos de Comida y Encomienda a través del `ControladorDeEnvios`, cancela el pedido Express y finalmente muestra el historial de entregas realizadas.
+`Main.java` (paquete `com.speedfast`) crea una `ZonaDeCarga`, agrega pedidos, instancia varios `Repartidor` (clases del paquete `concurrencia.sincronizacion`) y los ejecuta en paralelo mediante `ExecutorService`. Espera la finalización de todos los hilos con `awaitTermination()` antes de mostrar el mensaje final de confirmación.
 
 ---
 
@@ -121,4 +132,4 @@ mvn compile exec:java -Dexec.mainClass="com.speedfast.Main"
 
 ---
 
-© Duoc UC | Escuela de Informática y Telecomunicaciones | Desarrollo Orientado a Objetos 2 - Semana 04
+© Duoc UC | Escuela de Informática y Telecomunicaciones | Desarrollo Orientado a Objetos 2
