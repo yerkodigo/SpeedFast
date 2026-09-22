@@ -68,6 +68,14 @@ public abstract class Pedido implements Despachable, Cancelable {
         return idPedido;
     }
 
+    public String getDireccionEntrega() {
+        return direccionEntrega;
+    }
+
+    public String getTipoPedido() {
+        return tipoPedido;
+    }
+
     public String getRepartidorAsignado() {
         return repartidorAsignado;
     }
@@ -82,5 +90,10 @@ public abstract class Pedido implements Despachable, Cancelable {
 
     public void setDistanciaKm(Integer distanciaKm) {
         this.distanciaKm = distanciaKm;
+    }
+
+    @Override
+    public String toString() {
+        return "#" + idPedido + " - " + getNombreTipo() + " - " + direccionEntrega;
     }
 }
