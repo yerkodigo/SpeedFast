@@ -8,6 +8,10 @@ public class PedidoEncomienda extends Pedido {
         this.peso = peso;
     }
 
+    public PedidoEncomienda(Integer idPedido, String direccion, String tipo, String estado) {
+        super(idPedido, direccion, tipo, estado);
+    }
+
     @Override
     public String getNombreTipo() {
         return "Encomienda";

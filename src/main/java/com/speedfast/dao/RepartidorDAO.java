@@ -9,22 +9,31 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RepartidorDAO {
 
-    public void guardar(String nombre) {
+    public int guardar(String nombre) {
         String sql = "INSERT INTO repartidor (nombre) VALUES (?)";
+        int idGenerado = 0;
 
-        try (Connection conn = ConexionBD.obtenerConexion(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = ConexionBD.obtenerConexion(); PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, nombre);
 
             stmt.executeUpdate();
+
+            ResultSet claves = stmt.getGeneratedKeys();
+            if (claves.next()) {
+                idGenerado = claves.getInt(1);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error al guardar el repartidor en la base de datos.");
         }
+
+        return idGenerado;
     }
 
     public List<Repartidor> listarTodos() {

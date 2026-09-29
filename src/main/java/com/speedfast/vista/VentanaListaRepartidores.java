@@ -1,29 +1,23 @@
 package com.speedfast.vista;
 
-import com.speedfast.dao.PedidoDAO;
-import com.speedfast.model.Pedido;
+import com.speedfast.concurrencia.Repartidor;
+import com.speedfast.dao.RepartidorDAO;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
-public class VentanaListaPedidos extends JFrame {
-    private final PedidoDAO dao = new PedidoDAO();
+public class VentanaListaRepartidores extends JFrame {
+    private final RepartidorDAO dao = new RepartidorDAO();
     private final DefaultTableModel modeloTabla;
     private final JTable tabla;
 
-    private static final String[] COLUMNAS = {
-            "ID",
-            "Dirección",
-            "Tipo",
-            "Repartidor",
-            "Estado"
-    };
+    private static final String[] COLUMNAS = {"ID", "Nombre"};
 
-    public VentanaListaPedidos() {
-        setTitle("Listado de Pedidos");
-        setSize(650, 350);
+    public VentanaListaRepartidores() {
+        setTitle("Listado de Repartidores");
+        setSize(400, 350);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // para no cerrar todo
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
@@ -50,14 +44,11 @@ public class VentanaListaPedidos extends JFrame {
 
     public void refrescarTabla() {
         modeloTabla.setRowCount(0);
-        List<Pedido> pedidos = dao.listarTodos();
-        for (Pedido pedido : pedidos) {
+        List<Repartidor> repartidores = dao.listarTodos();
+        for (Repartidor repartidor : repartidores) {
             modeloTabla.addRow(new Object[]{
-                    pedido.getIdPedido(),
-                    pedido.getDireccionEntrega(),
-                    pedido.getNombreTipo(),
-                    pedido.getRepartidorAsignado() == null ? "Sin asignar" : pedido.getRepartidorAsignado(),
-                    pedido.getEstado()
+                    repartidor.getId(),
+                    repartidor.getNombre()
             });
         }
     }

@@ -7,14 +7,33 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Repartidor implements Runnable {
-    private final String nombre;
-    private final List<Pedido> pedidosAsignados;
-    private final ControladorDeEnvios controlador;
+    private Integer id;
+    private String nombre;
+    private List<Pedido> pedidosAsignados;
+    private ControladorDeEnvios controlador;
 
     public Repartidor(String nombre, List<Pedido> pedidosAsignados, ControladorDeEnvios controlador) {
         this.nombre = nombre;
         this.pedidosAsignados = pedidosAsignados;
         this.controlador = controlador;
+    }
+
+    public Repartidor(Integer id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    @Override
+    public String toString() {
+        return nombre;
     }
 
     @Override

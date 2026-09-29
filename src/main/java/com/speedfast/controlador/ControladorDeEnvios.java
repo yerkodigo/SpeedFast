@@ -23,7 +23,7 @@ public class ControladorDeEnvios implements Rastreable {
         List<Pedido> pendientes = new ArrayList<>();
         synchronized (pedidos) {
             for (Pedido pedido : pedidos) {
-                if (!"Despachado".equals(pedido.getEstado()) && !"Cancelado".equals(pedido.getEstado())) {
+                if (!"ENTREGADO".equals(pedido.getEstado()) && !"CANCELADO".equals(pedido.getEstado())) {
                     pendientes.add(pedido);
                 }
             }
@@ -33,7 +33,7 @@ public class ControladorDeEnvios implements Rastreable {
 
     public synchronized void despacharPedido(Pedido pedido) {
         pedido.despachar();
-        if ("Despachado".equals(pedido.getEstado())) {
+        if ("ENTREGADO".equals(pedido.getEstado())) {
             historialEntregas.add(pedido);
         }
     }

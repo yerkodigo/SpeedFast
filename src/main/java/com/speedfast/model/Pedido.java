@@ -6,7 +6,7 @@ import com.speedfast.interfaces.Despachable;
 import java.util.UUID;
 
 public abstract class Pedido implements Despachable, Cancelable {
-    private final String idPedido;
+    private Integer idPedido;
     private String direccionEntrega;
     private String tipoPedido;
     private Integer distanciaKm;
@@ -14,11 +14,17 @@ public abstract class Pedido implements Despachable, Cancelable {
     private String estado;
 
     public Pedido(String direccionEntrega, String tipoPedido, Integer distanciaKm) {
-        this.idPedido = UUID.randomUUID().toString().substring(0, 8);
         this.direccionEntrega = direccionEntrega;
         this.tipoPedido = tipoPedido;
         this.distanciaKm = distanciaKm;
-        this.estado = "Pendiente";
+        this.estado = "PENDIENTE";
+    }
+
+    public Pedido(Integer idPedido, String direccionEntrega, String tipoPedido, String estado) {
+        this.idPedido = idPedido;
+        this.direccionEntrega = direccionEntrega;
+        this.tipoPedido = tipoPedido;
+        this.estado = estado;
     }
 
     public abstract String getNombreTipo();
@@ -49,14 +55,14 @@ public abstract class Pedido implements Despachable, Cancelable {
             System.out.println("No se puede despachar el pedido #" + this.idPedido + ": no tiene repartidor asignado.");
             return;
         }
-        this.estado = "Despachado";
+        this.estado = "ENTREGADO";
         System.out.println("Pedido despachado correctamente.");
     }
 
     @Override
     public void cancelar() {
         System.out.println("Cancelando Pedido " + getNombreTipo() + " #" + this.idPedido + "...");
-        this.estado = "Cancelado";
+        this.estado = "CANCELADO";
         System.out.println("→ Pedido cancelado exitosamente.");
     }
 
@@ -64,7 +70,7 @@ public abstract class Pedido implements Despachable, Cancelable {
         this.repartidorAsignado = nombreRepartidor;
     }
 
-    public String getIdPedido() {
+    public Integer getIdPedido() {
         return idPedido;
     }
 
@@ -78,6 +84,14 @@ public abstract class Pedido implements Despachable, Cancelable {
 
     public String getRepartidorAsignado() {
         return repartidorAsignado;
+    }
+
+    public void setRepartidorAsignado(String repartidorAsignado) {
+        this.repartidorAsignado = repartidorAsignado;
+    }
+
+    public void setIdPedido(Integer idPedido) {
+        this.idPedido = idPedido;
     }
 
     public String getEstado() {

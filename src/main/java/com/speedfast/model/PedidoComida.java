@@ -8,6 +8,10 @@ public class PedidoComida extends Pedido {
         this.mochilaTermica = mochilaTermica;
     }
 
+    public PedidoComida(Integer idPedido, String direccion, String tipo, String estado) {
+        super(idPedido, direccion, tipo, estado);
+    }
+
     @Override
     public String getNombreTipo() {
         return "Comida";

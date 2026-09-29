@@ -2,6 +2,7 @@ package com.speedfast.concurrencia.sincronizacion;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+@Deprecated
 public class Repartidor implements Runnable {
     private final String nombre;
     private final ZonaDeCarga zonaDeCarga;

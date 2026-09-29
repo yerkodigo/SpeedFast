@@ -5,6 +5,10 @@ public class PedidoExpress extends Pedido {
         super(direccionEntrega, tipoPedido, distanciaKm);
     }
 
+    public PedidoExpress(Integer idPedido, String direccion, String tipo, String estado) {
+        super(idPedido, direccion, tipo, estado);
+    }
+
     @Override
     public String getNombreTipo() {
         return "Express";
