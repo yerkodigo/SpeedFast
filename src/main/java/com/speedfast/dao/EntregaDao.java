@@ -9,9 +9,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntregaDao {
-
-    public void guardar(Entrega entrega) {
+public class EntregaDao implements IEntregaDAO {
+    @Override
+    public void create(Entrega entrega) {
         String sql = "INSERT INTO entrega (id_pedido, id_repartidor, fecha, hora) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = ConexionBD.obtenerConexion(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -27,7 +27,8 @@ public class EntregaDao {
         }
     }
 
-    public List<Entrega> listarTodos() {
+    @Override
+    public List<Entrega> readAll() {
         String sql = "SELECT * FROM entrega";
         List<Entrega> entregas = new ArrayList<>();
 
@@ -51,4 +52,15 @@ public class EntregaDao {
         }
         return entregas;
     }
+
+    @Override
+    public void update() {
+
+    }
+
+    @Override
+    public void delete() {
+
+    }
+
 }

@@ -2,7 +2,6 @@ package com.speedfast.dao;
 
 import com.speedfast.concurrencia.Repartidor;
 import com.speedfast.controlador.ConexionBD;
-import com.speedfast.model.Pedido;
 
 import javax.swing.*;
 import java.sql.Connection;
@@ -13,14 +12,14 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RepartidorDAO {
-
-    public int guardar(String nombre) {
+public class RepartidorDAO implements IRepartidorDAO {
+    @Override
+    public int create(Repartidor repartidor) {
         String sql = "INSERT INTO repartidor (nombre) VALUES (?)";
         int idGenerado = 0;
 
         try (Connection conn = ConexionBD.obtenerConexion(); PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, nombre);
+            stmt.setString(1, repartidor.getNombre());
 
             stmt.executeUpdate();
 
@@ -36,7 +35,8 @@ public class RepartidorDAO {
         return idGenerado;
     }
 
-    public List<Repartidor> listarTodos() {
+    @Override
+    public List<Repartidor> readAll() {
         String sql = "SELECT * FROM repartidor";
         List<Repartidor> repartidores = new ArrayList<>();
 
@@ -55,5 +55,15 @@ public class RepartidorDAO {
             JOptionPane.showMessageDialog(null, "Error al listar los repartidores en la base de datos.");
         }
         return repartidores;
+    }
+
+    @Override
+    public void update() {
+
+    }
+
+    @Override
+    public void delete() {
+
     }
 }

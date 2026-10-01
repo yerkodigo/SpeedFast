@@ -12,7 +12,7 @@ public class Main {
 //        System.out.println("Ejecutando main");
         try (Connection conn = ConexionBD.obtenerConexion()) {
             System.out.println("✅ Conexión exitosa a la base de datos.");
-            SwingUtilities.invokeLater(VentanaPrincipal::new);
+//            SwingUtilities.invokeLater(VentanaPrincipal::new);
         } catch (SQLException e) {
             System.err.println("❌ Error al conectar con la base de datos:");
             e.printStackTrace();
